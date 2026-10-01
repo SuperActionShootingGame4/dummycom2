@@ -1,0 +1,58 @@
+[setup 14:50:42] downloading ARM none-eabi GCC (xpack 13.3.1)
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+  8  229M    8 20.0M    0     0  15.0M      0  0:00:15  0:00:01  0:00:14 15.0M 26  229M   26 60.0M    0     0  26.4M      0  0:00:08  0:00:02  0:00:06 42.6M 48  229M   48  111M    0     0  34.5M      0  0:00:06  0:00:03  0:00:03 48.0M 69  229M   69  160M    0     0  36.7M      0  0:00:06  0:00:04  0:00:02 46.2M 79  229M   79  183M    0     0  35.0M      0  0:00:06  0:00:05  0:00:01 41.8M 99  229M   99  227M    0     0  36.5M      0  0:00:06  0:00:06 --:--:-- 42.3M100  229M  100  229M    0     0  36.7M      0  0:00:06  0:00:06 --:--:-- 42.5M
+[setup 14:50:54] ARM GCC: arm-none-eabi-gcc (xPack GNU Arm Embedded GCC x86_64) 13.3.1 20240614
+[setup 14:50:54] downloading CMake 3.31.6
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+100 52.4M  100 52.4M    0     0  52.1M      0  0:00:01  0:00:01 --:--:-- 52.1M
+[setup 14:50:56] CMake: cmake version 3.31.6
+[setup 14:50:56] cloning pico-sdk 2.1.1
+Cloning into '/home/subcon/opt/pico-sdk'...
+Note: switching to 'bddd20f928ce76142793bef434d4f75f4af6e433'.
+
+You are in 'detached HEAD' state. You can look around, make experimental
+changes and commit them, and you can discard any commits you make in this
+state without impacting any branches by switching back to a branch.
+
+If you want to create a new branch to retain commits you create, you may
+do so (now or later) by using -c with the switch command. Example:
+
+  git switch -c <new-branch-name>
+
+Or undo this operation with:
+
+  git switch -
+
+Turn off this advice by setting config variable advice.detachedHead to false
+
+[setup 14:50:57] fetching submodules (tinyusb, btstack, cyw43-driver, lwip, mbedtls)
+Submodule 'lib/btstack' (https://github.com/bluekitchen/btstack.git) registered for path 'lib/btstack'
+Submodule 'lib/cyw43-driver' (https://github.com/georgerobotics/cyw43-driver.git) registered for path 'lib/cyw43-driver'
+Submodule 'lib/lwip' (https://github.com/lwip-tcpip/lwip.git) registered for path 'lib/lwip'
+Submodule 'lib/mbedtls' (https://github.com/Mbed-TLS/mbedtls.git) registered for path 'lib/mbedtls'
+Submodule 'tinyusb' (https://github.com/hathach/tinyusb.git) registered for path 'lib/tinyusb'
+Cloning into '/home/subcon/opt/pico-sdk/lib/btstack'...
+Cloning into '/home/subcon/opt/pico-sdk/lib/cyw43-driver'...
+Cloning into '/home/subcon/opt/pico-sdk/lib/lwip'...
+Cloning into '/home/subcon/opt/pico-sdk/lib/mbedtls'...
+Cloning into '/home/subcon/opt/pico-sdk/lib/tinyusb'...
+From https://github.com/bluekitchen/btstack
+ * branch            501e6d2b86e6c92bfb9c390bcf55709938e25ac1 -> FETCH_HEAD
+Submodule path 'lib/btstack': checked out '501e6d2b86e6c92bfb9c390bcf55709938e25ac1'
+From https://github.com/georgerobotics/cyw43-driver
+ * branch            c1075d4bc440422cf2b2fd12c64a1f53f77660ee -> FETCH_HEAD
+Submodule path 'lib/cyw43-driver': checked out 'c1075d4bc440422cf2b2fd12c64a1f53f77660ee'
+From https://github.com/lwip-tcpip/lwip
+ * branch            0a0452b2c39bdd91e252aef045c115f88f6ca773 -> FETCH_HEAD
+Submodule path 'lib/lwip': checked out '0a0452b2c39bdd91e252aef045c115f88f6ca773'
+From https://github.com/Mbed-TLS/mbedtls
+ * branch            5a764e5555c64337ed17444410269ff21cb617b1 -> FETCH_HEAD
+Submodule path 'lib/mbedtls': checked out '5a764e5555c64337ed17444410269ff21cb617b1'
+From https://github.com/hathach/tinyusb
+ * branch            86ad6e56c1700e85f1c5678607a762cfe3aa2f47 -> FETCH_HEAD
+Submodule path 'lib/tinyusb': checked out '86ad6e56c1700e85f1c5678607a762cfe3aa2f47'
+[setup 14:51:19] DONE. source /home/subcon/opt/pico-env.sh before building.

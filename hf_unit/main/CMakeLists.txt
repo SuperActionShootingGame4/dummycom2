@@ -1,0 +1,20 @@
+idf_component_register(
+    SRCS
+        "app_main.c"
+        "bt_app_core.c"
+        "bt_hf_client.c"
+        "bt_data_path.c"
+        "adc_capture.c"
+        "i2s_capture.c"
+        "storage.c"
+        "leds.c"
+    INCLUDE_DIRS "."
+    REQUIRES
+        bt
+        nvs_flash
+        esp_ringbuf
+        esp_timer
+        esp_driver_gpio
+        esp_adc
+        esp_driver_i2s
+)

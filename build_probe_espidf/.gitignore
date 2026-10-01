@@ -1,0 +1,4 @@
+# ESP-IDF ビルド生成物・生成 config(tools/build_probe_espidf.sh で再生成可能)
+build/
+sdkconfig
+sdkconfig.old

@@ -1,0 +1,13 @@
+# Target labels
+ bootloader
+# Source files and their labels
+/home/subcon/SOURCE_CODE/dummycom2/build/CMakeFiles/bootloader
+/home/subcon/SOURCE_CODE/dummycom2/build/CMakeFiles/bootloader.rule
+/home/subcon/SOURCE_CODE/dummycom2/build/CMakeFiles/bootloader-complete.rule
+/home/subcon/SOURCE_CODE/dummycom2/build/bootloader-prefix/src/bootloader-stamp/bootloader-build.rule
+/home/subcon/SOURCE_CODE/dummycom2/build/bootloader-prefix/src/bootloader-stamp/bootloader-configure.rule
+/home/subcon/SOURCE_CODE/dummycom2/build/bootloader-prefix/src/bootloader-stamp/bootloader-download.rule
+/home/subcon/SOURCE_CODE/dummycom2/build/bootloader-prefix/src/bootloader-stamp/bootloader-install.rule
+/home/subcon/SOURCE_CODE/dummycom2/build/bootloader-prefix/src/bootloader-stamp/bootloader-mkdir.rule
+/home/subcon/SOURCE_CODE/dummycom2/build/bootloader-prefix/src/bootloader-stamp/bootloader-patch.rule
+/home/subcon/SOURCE_CODE/dummycom2/build/bootloader-prefix/src/bootloader-stamp/bootloader-update.rule

@@ -1,0 +1,19 @@
+diff --git a/components/bt/host/bluedroid/bta/hf_ag/bta_ag_cmd.c b/components/bt/host/bluedroid/bta/hf_ag/bta_ag_cmd.c
+index 6bccfe1b..d86d62b1 100644
+--- a/components/bt/host/bluedroid/bta/hf_ag/bta_ag_cmd.c
++++ b/components/bt/host/bluedroid/bta/hf_ag/bta_ag_cmd.c
+@@ -694,8 +694,12 @@ static tBTA_AG_PEER_CODEC bta_ag_parse_bac(tBTA_AG_SCB *p_scb, char *p_s)
+                 break;
+ 
+             default:
+-                APPL_TRACE_ERROR("Unknown Codec UUID(%d) received", uuid_codec);
+-                return BTA_AG_CODEC_NONE;
++                /* dummy_intercom patch: an HFP 1.9 HF (e.g. SENA SRL-3) may list
++                 * codec 3 (LC3-SWB). The stock code returns BTA_AG_CODEC_NONE
++                 * here, discarding CVSD/mSBC parsed so far and forcing CVSD.
++                 * Skip the unknown codec and keep going instead. */
++                APPL_TRACE_WARNING("Unknown Codec UUID(%d) received, ignoring", uuid_codec);
++                break;
+         }
+         if (cont) {
+             p_s = p + 1;

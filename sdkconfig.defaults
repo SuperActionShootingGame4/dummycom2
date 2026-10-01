@@ -1,0 +1,47 @@
+# ============================================================================
+# Dummy Intercom firmware - sdkconfig defaults
+# Base: official examples/bluetooth/bluedroid/classic_bt/hfp_ag/sdkconfig.ci.vohci
+# (Voice-over-HCI reference). Plus this project's CVSD-fixed / trimmed additions.
+# See software_design.md 5.1 and issue_list.md ISS-008 / ISS-009 / ISS-010 / ISS-011.
+# ============================================================================
+
+# ---- Base: official vohci config -------------------------------------------
+CONFIG_BT_ENABLED=y
+CONFIG_BT_BLE_ENABLED=n
+CONFIG_BTDM_CTRL_MODE_BR_EDR_ONLY=y
+CONFIG_BTDM_CTRL_BR_EDR_MAX_SYNC_CONN=1
+CONFIG_BT_BLUEDROID_ENABLED=y
+CONFIG_BT_CLASSIC_ENABLED=y
+CONFIG_BT_HFP_ENABLE=y
+CONFIG_BT_HFP_AG_ENABLE=y
+CONFIG_BT_HFP_AUDIO_DATA_PATH_HCI=y
+
+# ---- This project: additions / overrides ----------------------------------
+# WBS enabled (Phase 2 / spec R3): the AG offers both CVSD and mSBC. If SRL-3
+# picks mSBC the recv callback delivers 16 kHz PCM and the firmware switches the
+# audio path to 16 k (bt_hf_ag.c ESP_HF_AUDIO_STATE_CONNECTED_MSBC). Falls back
+# to CVSD 8 k transparently. Set =n to force CVSD-only again.
+CONFIG_BT_HFP_WBS_ENABLE=y
+# Controller SCO data path also set to HCI. btc_hf_init() overrides this at
+# runtime anyway, but this makes the intent explicit and closes the pre-init
+# window (ISS-010).
+CONFIG_BTDM_CTRL_BR_EDR_SCO_DATA_PATH_HCI=y
+# Trim unused Bluetooth features (RAM / flash).
+# Both roles are compiled in; only one is init'd per boot (IDF: cannot run simultaneously, BT_ROLE in app_config.h).
+CONFIG_BT_HFP_CLIENT_ENABLE=y
+CONFIG_BT_A2DP_ENABLE=n
+CONFIG_BT_SPP_ENABLED=n
+CONFIG_BT_ACL_CONNECTIONS=2
+# NOTE: there is no CONFIG_BT_SSP_ENABLED in ESP-IDF v5.4. SSP is switched at
+# runtime: esp_bluedroid_config_t.ssp_en (app_main.c, BT_LEGACY_PAIRING in
+# app_config.h). CR-010: SSP off + fixed legacy PIN for validation.
+
+# ---- Partition table / flash (custom, factory 0x1E0000, 4MB flash) --------
+CONFIG_PARTITION_TABLE_CUSTOM=y
+CONFIG_PARTITION_TABLE_CUSTOM_FILENAME="partitions.csv"
+CONFIG_ESPTOOLPY_FLASHSIZE_4MB=y
+
+# ---- Misc ----------------------------------------------------------------
+CONFIG_ESP_MAIN_TASK_STACK_SIZE=4096
+CONFIG_FREERTOS_HZ=1000
+CONFIG_LOG_DEFAULT_LEVEL_INFO=y

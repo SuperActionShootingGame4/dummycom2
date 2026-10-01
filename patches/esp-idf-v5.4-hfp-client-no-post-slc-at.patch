@@ -1,0 +1,16 @@
+diff --git a/components/bt/host/bluedroid/bta/hf_client/bta_hf_client_main.c b/components/bt/host/bluedroid/bta/hf_client/bta_hf_client_main.c
+--- a/components/bt/host/bluedroid/bta/hf_client/bta_hf_client_main.c
++++ b/components/bt/host/bluedroid/bta/hf_client/bta_hf_client_main.c
+@@ -556,6 +556,12 @@ static void send_post_slc_cmd(void)
+ {
+     bta_hf_client_cb.scb.at_cb.current_cmd = BTA_HF_CLIENT_AT_NONE;
+ 
++    /* dummy_intercom patch: a SENA SRL-3 acting as AG never answers one of the
++     * optional post-SLC commands below, so the stack hits its 30 s
++     * "AT response timeout" and drops the link. These only enable indicator
++     * reporting; a receive-only HF does not need them. */
++    return;
++
+     bta_hf_client_send_at_bia();
+     bta_hf_client_send_at_ccwa(TRUE);
+     bta_hf_client_send_at_cmee(TRUE);

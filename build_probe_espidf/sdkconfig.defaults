@@ -1,0 +1,23 @@
+# DEBUGGER T04 build_probe_espidf — dummy_intercom spec rev 0.6 §5.1 準拠(Phase 1 = CVSD)
+# ベース: examples/bluetooth/bluedroid/classic_bt/hfp_ag
+CONFIG_BT_ENABLED=y
+CONFIG_BT_BLE_ENABLED=n
+CONFIG_BTDM_CTRL_MODE_BR_EDR_ONLY=y
+CONFIG_BTDM_CTRL_BR_EDR_MAX_SYNC_CONN=1
+CONFIG_BT_BLUEDROID_ENABLED=y
+CONFIG_BT_CLASSIC_ENABLED=y
+CONFIG_BT_A2DP_ENABLE=n
+CONFIG_BT_HFP_ENABLE=y
+CONFIG_BT_HFP_AG_ENABLE=y
+
+# 音声データパス: HCI(Bluedroid がデコード済み PCM をコールバック) / WBS 無効(CVSD 固定)
+CONFIG_BT_HFP_AUDIO_DATA_PATH_HCI=y
+CONFIG_BT_HFP_WBS_ENABLE=n
+
+# 注: spec §5.1 の CONFIG_BT_SSP_ENABLED は ESP-IDF v5.4 では廃止済み(Bluedroid Classic は
+#     SSP 常時有効)。設定不要。指定すると "unknown kconfig symbol" 警告になる。
+
+# フラッシュ 4MB(spec §4.1。例の既定 2MB から拡張)
+CONFIG_ESPTOOLPY_FLASHSIZE_4MB=y
+CONFIG_ESPTOOLPY_FLASHSIZE="4MB"
+CONFIG_PARTITION_TABLE_SINGLE_APP_LARGE=y

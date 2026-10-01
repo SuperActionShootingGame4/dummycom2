@@ -1,0 +1,2 @@
+# ビルド生成物(検証のたびに tools/build_probe.sh で再生成可能)
+build/

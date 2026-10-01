@@ -1,0 +1,37 @@
+# ============================================================================
+# Dummy Intercom HF unit - sdkconfig defaults
+# Base: official examples/bluetooth/bluedroid/classic_bt/hfp_hf/sdkconfig.ci.vohci
+# (Voice-over-HCI reference, HFP Hands-Free/client role).
+# See software_design.md 13.5.1.
+# ============================================================================
+
+# ==== ベース: 公式 hfp_hf/sdkconfig.ci.vohci ====
+CONFIG_BT_ENABLED=y
+CONFIG_BT_BLE_ENABLED=n
+CONFIG_BTDM_CTRL_MODE_BR_EDR_ONLY=y
+CONFIG_BTDM_CTRL_BR_EDR_MAX_SYNC_CONN=1
+CONFIG_BT_BLUEDROID_ENABLED=y
+CONFIG_BT_CLASSIC_ENABLED=y
+CONFIG_BT_HFP_ENABLE=y
+CONFIG_BT_HFP_CLIENT_ENABLE=y
+CONFIG_BT_HFP_AUDIO_DATA_PATH_HCI=y
+
+# ==== 本機の追加/上書き ====
+# AGユニット rev0.7 と同じ判断: WBS 有効化。X4 が mSBC を要求すれば追従(仕様 §5.5「要検証」)。
+# 実機で mSBC 側に問題が出る場合は =n にして CVSD 固定へ(ADC 側は §13.5.5 の間引き係数=4固定に戻すだけ)
+CONFIG_BT_HFP_WBS_ENABLE=y
+CONFIG_BTDM_CTRL_BR_EDR_SCO_DATA_PATH_HCI=y
+# 省機能・RAM/Flash 節約(本機は HF のみ。AG 機能は不要)
+CONFIG_BT_HFP_AG_ENABLE=n
+CONFIG_BT_A2DP_ENABLE=n
+CONFIG_BT_SPP_ENABLED=n
+# CONFIG_BT_SSP_ENABLED は v5.4 で廃止済み(AGユニットの ISS-009 と同じ)。書かない。
+# パーティション: AGユニットと同一レイアウトを流用(4MB flash 明示)
+CONFIG_PARTITION_TABLE_CUSTOM=y
+CONFIG_PARTITION_TABLE_CUSTOM_FILENAME="partitions.csv"
+CONFIG_ESPTOOLPY_FLASHSIZE_4MB=y
+# misc
+CONFIG_BT_ACL_CONNECTIONS=2
+CONFIG_ESP_MAIN_TASK_STACK_SIZE=4096
+CONFIG_FREERTOS_HZ=1000
+CONFIG_LOG_DEFAULT_LEVEL_INFO=y
