@@ -118,3 +118,16 @@ Open 3 件(ISS-008/012, 015, 016, 017)はいずれも **実機がないと確定
 | ISS-C12-06 | DESIGNER | レビュー | L-4: git インデックスに build/*・sdkconfig.old が staged。新規 docs/PDF は未 add | コミット時 | 既存状態 | リポジトリ | Low | コミット時に注意(ユーザーがコミット指示時に対応) | BOSS | Accepted | - | なし |
 | ISS-C12-07 | DESIGNER | レビュー | L-5: test_report §12.1 に「#1 は HFP-AG」とあるが既定は BT_ROLE_HF | - | 記載ミス | test_report.md | Low | 訂正 | DEBUGGER | Resolved | test_report §12.1 訂正 | なし |
 | ISS-C12-08 | BOSS | 最終確認 | U-5: dummy_intercom_spec.md の rev 採番とピン/音声章の改訂が未実施 | - | 優先度低として後回し | 仕様書 | Low | 実機検証後にまとめて改訂 | BOSS | Open | - | 文書と実装の不一致 |
+
+---
+
+## CR-014(録音レベル低下 / AT+VGS 送信)課題
+
+| 課題ID | 発見Agent | 発見工程 | 課題内容 | 再現条件 | 原因 | 影響範囲 | 重大度 | 対応方針 | 担当Agent | 状態 | 対応結果 | 残存リスク |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| ISS-C14-01 | BOSS | 要求整理 | 録音が小さい | SRL3 メッシュ会話を PC で録音 | 推定: SRL3(AG)の SCO 出力レベルが未制御(#1 が VGS 未送信)。**実機未検証** | main/bt_hf_client.c | Medium | 対策 A: AT+VGS=15 送信 | CODER | In Progress | 実装済み・実機検証待ち | 実機で改善しない場合は SRL3 が VGS 無視 → 対策 B(DSP ゲイン) |
+| ISS-C14-02 | BOSS | 要求整理 | PC 側の入力が 30%(内蔵アナログ入力)で、BT 入力デバイス音量は未確認 | PC で確認 | PC 設定 | PC(ファーム外) | Low | ユーザーへ案内 | BOSS | Open | - | - |
+| ISS-C14-03 | BOSS | 要求整理 | 実機(ESP32/SRL3)が本環境に無く効果を実測できない | - | 環境制約 | テスト範囲 | Medium | ビルド・コードレビュー・静的確認までを完了条件とし、実機確認はユーザーへ依頼 | DEBUGGER | Open | - | - |
+| ISS-C14-04 | DESIGNER | レビュー | L-1: HF_SPK_VOLUME=-1 時にログが出ず無効ビルドと分からない | -1 でビルド | 設計上ログ無し | bt_hf_client.c | Low | 実害なし。Accept | BOSS | Accepted | 現状維持 | なし |
+| ISS-C14-05 | DESIGNER | レビュー | L-2: 境界値ビルド未確認 | - | DEBUGGER 結果待ちだった | - | Low | DEBUGGER が B-2〜B-6 合格を確認 | DEBUGGER | Resolved | 16/-2 は #error、他は成功 | なし |
+

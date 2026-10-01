@@ -573,3 +573,58 @@ idf.py size ; idf.py size-components                          # S4/S5
 
 ### 12.12 CR-013 撤去確認
 `I2S_IN_GAIN` の定義と `i2s_capture.c` のゲインブロックが撤去され、コード上に参照が残っていないことを grep で確認。CR-012 実装直後の状態(§12.7〜12.9 の結果が有効)。§12.10/12.11 は撤去済み変更の記録。CODER 側ビルド成功・警告 0。
+
+## 13. CR-014 AT+VGS 送信 テスト(DEBUGGER)
+
+### 13.1 対象・環境
+- 対象設計: `software_design.md` §16(CR-014 録音レベル低下対策 A: `AT+VGS=HF_SPK_VOLUME` を SLC 確立直後 / SCO 確立直後に送信、`VOLUME_CONTROL_EVT` をログ化)。
+- 実施日: 2026-10-01
+- 対象 revision: `c116808b42a45a9390a0baa2fd0db74100a60aa2`(main)+ 作業ツリー(CODER の `main/app_config.h`・`main/bt_hf_client.c` 変更を含む。フェーズ2で `git status` / `git diff --stat` を再記録する)。※フェーズ1記入時点で `main/app_config.h`・`main/bt_hf_client.c` は既に未コミット変更あり(CODER 作業中、未検証)。
+- 環境: ESP-IDF v5.4(`IDF_TOOLS_PATH=/home/subcon/.espressif`、`~/esp/esp-idf/export.sh`)、Linux。境界値ビルドはスクラッチパッド配下の作業ツリーコピーで行い、リポジトリ本体は変更しない。
+- 実機(ESP32 / SRL3 / PC 録音環境)は無い。
+
+### 13.2 静的/ビルド系テスト(本環境で実施可)
+| ID | 条件 | 操作 | 期待結果 | 判定 |
+|---|---|---|---|---|
+| B-1 | `HF_SPK_VOLUME=15`(既定)、BT_ROLE_HF | `idf.py build` | 成功、警告 0 | 合格 |
+| B-2 | `HF_SPK_VOLUME=-1` | コピー上で定義変更しビルド | 成功、警告 0(`when` 未使用警告なし) | 合格 |
+| B-3 | `HF_SPK_VOLUME=0` | 同上 | 成功、警告 0 | 合格 |
+| B-4 | `HF_SPK_VOLUME=16` | 同上 | `#error "HF_SPK_VOLUME must be -1 ..."` でビルド失敗 | 合格 |
+| B-5 | `HF_SPK_VOLUME=-2` | 同上 | `#error` でビルド失敗 | 合格 |
+| B-6 | `BT_ROLE_AG` | 同上 | ビルド成功(bt_hf_client.c 対象外) | 合格 |
+| S-1 | ソース | `grep -n esp_hf_client_volume_update main/` | `send_spk_volume` 内の 1 件のみ | 合格 |
+| S-2 | ソース | `send_spk_volume(` の呼出し箇所確認 | `handle_conn_state`(SLC)と `handle_audio_state`(SCO, `if (s_slc)` ガード付)のみ | 合格 |
+| S-3 | ソース | `bt_hf_cb` 内を確認 | `hf_post` 以外の API 呼出し追加なし、`esp_hf_client_*` 呼出しなし、VGS を返送しない | 合格 |
+| S-4 | git | `git diff --stat` | 変更は `main/app_config.h`・`main/bt_hf_client.c` のみ(hf_unit/bt_app_core/bt_data_path/audio_* 無変更) | 合格 |
+| S-5 | ソース | ログ文言確認 | `AT+VGS=%d queued (SLC)` / `(SCO)`、失敗時 LOGW、`AG volume: SPK = n` が設計と一致 | 合格 |
+| S-6 | ソース | 既存手順の確認 | `connect_audio` 非呼出し、SCO 時の I2S 呼出し順 (`set_input_rate`→`reset`→`set_sco_active`→`on_audio_connected`) 不変 | 合格 |
+| S-7 | ソース | `bt_hf_cb` 末尾コメントから VOLUME_CONTROL 削除、新規 static 変数なし | 設計 §16.11 どおり | 合格 |
+| R-1 | 回帰 | HF 既定ビルドのサイズ/警告をベースラインと比較 | 増加は僅少、警告 0 | 合格 |
+
+### 13.3 実機専用テスト(未実施(実機なし))
+理由: SRL3 / 2×ESP32 / PC 録音環境が開発環境に無く、AG の VGS 受理・音量反映・RMS 比較は実機でのみ観測可能。
+
+| ID | 条件 | 操作 | 期待結果 | 判定 |
+|---|---|---|---|---|
+| T-1 | SRL3 ペア済 | 接続しログ確認 | `AT+VGS=15 queued (SLC)` が出力、切断/AT timeout が増えない | 未実施(実機なし) |
+| T-2 | 通話開始 | SCO 確立 | `AT+VGS=15 queued (SCO)` 再送 | 未実施(実機なし) |
+| T-3 | 同上 | `AG volume:` ログ確認 | SRL3 が +VGS を返す/リセットするか判別 | 未実施(実機なし) |
+| T-4 | 同条件会話 | PC 録音レベル / `RMS_LOG` を前後比較 | 録音レベル増加 | 未実施(実機なし) |
+| T-5 | 最大音量 | 実音声 | 歪み/クリップなし(あれば 12〜14 へ) | 未実施(実機なし) |
+| T-6 | SRL3 が VGS 無視 | ログ・RMS | 効果なしの判定 → 対策 B(別 CR) | 未実施(実機なし) |
+| T-7 | 再接続 / CVSD↔mSBC 再ネゴ | 繰り返し | 毎回有効、SLC 不安定化なし(R-4) | 未実施(実機なし) |
+| T-8 | 通話開始冒頭 | 録音 | 冒頭の音量が一定(R-2) | 未実施(実機なし) |
+
+### 13.4 結果
+実施: スクラッチパッド上に作業ツリーをコピー(build/・.git 除く)してビルド。リポジトリ本体のソースは無変更。対象差分: `main/app_config.h`(+7)・`main/bt_hf_client.c`(+28/-1)のみ(`git diff --stat -- hf_unit main`)。
+- B-1 `15`: 成功・警告0、app 0xb64e0(62%空き)。ベースライン(HEAD)0xb6340 → +0x1a0(416B)。
+- B-2 `-1` / B-3 `0`: 成功・警告0(`-1` で未使用引数警告なし)。
+- B-4 `16` / B-5 `-2`: `app_config.h:101: error: #error "HF_SPK_VOLUME must be -1 (disabled) or 0..15"` でビルド失敗(期待どおり)。
+- B-6 `BT_ROLE_AG`: 成功・警告0(0xb7430)。
+- S-1 `esp_hf_client_volume_update` は `send_spk_volume` 内 1 件のみ。S-2 呼出しは `handle_conn_state`(SLC)と `handle_audio_state`(`if (s_slc)` ガード)のみ。S-3 `bt_hf_cb` の追加は `VOLUME_CONTROL_EVT` のログ case のみ(API/hf_post 追加なし、返送なし)。S-4 差分は2ファイルのみ。S-5 ログ文言は設計どおり(成功 LOGI `queued`、失敗 LOGW)。S-6 `connect_audio` 非呼出し・I2S 呼出し順不変(VGS は `on_audio_connected`/LED/ログの後)。S-7 末尾コメントから VOLUME_CONTROL 削除、新規 static 変数なし。
+- 不具合: なし。
+- 所見(情報): SCO 側は `s_slc` ガード付きだが、`s_slc` は BtAppT 上でのみ更新されるため設計どおり。
+
+**実機専用 T-1〜T-8 は未実施(実機なし)**(§13.3。SRL3 の VGS 受理・録音レベル・歪み・再ネゴ挙動は実機でのみ確認可能。U-10〜U-12 は実機結果待ち)。
+
+**最終判定: 実機無し範囲は合格(B-1〜B-6, S-1〜S-7, R-1 すべて合格、警告0、不具合0)。実機 T-1〜T-8 は未実施。**

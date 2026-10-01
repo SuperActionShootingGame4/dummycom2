@@ -126,6 +126,30 @@ static void handle_stack_up(void)
              storage_has_peer() ? " (waiting for stored peer, discoverable)" : " (discoverable)");
 }
 
+/* CR-014: AT+VGS to the AG. Call from BtAppT only (handle_*), after SLC. ESP_OK
+ * only means "queued to BTC", not "accepted by the AG". Failure is non-fatal. */
+static void send_spk_volume(const char *when)
+{
+#if HF_SPK_VOLUME >= 0
+    esp_err_t e = esp_hf_client_volume_update(ESP_HF_VOLUME_CONTROL_TARGET_SPK, HF_SPK_VOLUME);
+    if (e == ESP_OK) {
+        ESP_LOGI(TAG, "AT+VGS=%d queued (%s)", HF_SPK_VOLUME, when);
+    } else {
+        ESP_LOGW(TAG, "AT+VGS=%d failed (%s): %s", HF_SPK_VOLUME, when, esp_err_to_name(e));
+    }
+#else
+    (void)when;
+#endif
+#if HF_MIC_VOLUME >= 0
+    esp_err_t m = esp_hf_client_volume_update(ESP_HF_VOLUME_CONTROL_TARGET_MIC, HF_MIC_VOLUME);
+    if (m == ESP_OK) {
+        ESP_LOGI(TAG, "AT+VGM=%d queued (%s)", HF_MIC_VOLUME, when);
+    } else {
+        ESP_LOGW(TAG, "AT+VGM=%d failed (%s): %s", HF_MIC_VOLUME, when, esp_err_to_name(m));
+    }
+#endif
+}
+
 static void handle_conn_state(const hf_work_t *w)
 {
     switch (w->i1) {
@@ -141,6 +165,7 @@ static void handle_conn_state(const hf_work_t *w)
         leds_set_link(LINK_ON);
         timer_stop(s_reconnect_timer);
         ESP_LOGI(TAG, "SLC connected");
+        send_spk_volume("SLC");
         /* No connect_audio: the SRL3 (AG) opens SCO itself when the intercom call
          * starts. Requesting it (AT+BCC) is rejected and ends in an AT timeout. */
         break;
@@ -178,6 +203,9 @@ static void handle_audio_state(const hf_work_t *w)
         bt_data_path_on_audio_connected();
         leds_set_sco(SCO_ON);
         ESP_LOGI(TAG, "%s SCO connected", msbc ? "mSBC/16kHz" : "CVSD/8kHz");
+        if (s_slc) {
+            send_spk_volume("SCO");
+        }
         break;
     }
 
@@ -334,9 +362,15 @@ static void bt_hf_cb(esp_hf_client_cb_event_t event, esp_hf_client_cb_param_t *p
         ESP_LOGI(TAG, "HFP-HF profile state: %d", param->prof_stat.state);
         break;
 
+    case ESP_HF_CLIENT_VOLUME_CONTROL_EVT:   /* AG +VGS/+VGM: log only, never echo back */
+        ESP_LOGI(TAG, "AG volume: %s = %d",
+                 param->volume_control.type == ESP_HF_VOLUME_CONTROL_TARGET_SPK ? "SPK" : "MIC",
+                 param->volume_control.volume);
+        break;
+
     /* 以下すべてログのみ、応答不要(§13.0 H-D):
      * CIND_CALL/CALL_SETUP/CALL_HELD/SERVICE_AVAILABILITY/SIGNAL_STRENGTH/ROAMING/
-     * BATTERY_LEVEL、COPS_CURRENT_OPERATOR、BTRH、CLIP、CCWA、CLCC、VOLUME_CONTROL、
+     * BATTERY_LEVEL、COPS_CURRENT_OPERATOR、BTRH、CLIP、CCWA、CLCC、
      * AT_RESPONSE、CNUM、BSIR、BINP、PKT_STAT_NUMS_GET、BVRA、RING_IND */
     default:
         ESP_LOGI(TAG, "HF event %d (log only)", event);

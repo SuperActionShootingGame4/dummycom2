@@ -156,6 +156,7 @@ uint32_t audio_dsp_process(const int16_t *in, uint32_t n_in,
         float y = s_hpf_a * (s_hpf_y1 + x - s_hpf_x1);
         s_hpf_x1 = x;
         s_hpf_y1 = y;
+        y *= AUDIO_MAKEUP_GAIN;
 
 #if AUDIO_GATE_ENABLE
         /* 2. noise gate: peak-hold envelope, open instantly, release slowly */

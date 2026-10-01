@@ -1539,3 +1539,145 @@ CODER 提示の設計差異の判定:
 | Low | L-5 | `test_report.md §12.1` に「#1 が HFP-AG の SCO 受信」とあるが、#1 の既定は `BT_ROLE_HF`(AG は切替時)。DEBUGGER に文言訂正を依頼。また §12 の B/S/R 実施結果は未記載のため、記載後に本レビューの静的確認と突合すること |
 
 実機でのみ確認できる項目(T-1〜T-8)は変更なし。特に **R-1(左スロットの解釈)と R-4(BCLK エッジ)** は最初の通電で確認し、無音なら両側 `slot_mask` を RIGHT、化けるなら `bclk_inv` を試すこと。§15.12 の U-1〜U-9(既定値承認等)は依然ユーザー判断待ち。
+
+---
+
+## 16. CR-014 録音レベル低下対策 A(AT+VGS 送信)
+
+### 16.1 変更要求
+SRL3 メッシュ会話を PC で録音すると音量が小さい。BOSS 事前調査により #1(main/)・#2(hf_unit/)の DSP / I2S 経路に減衰は無い(unity)ことを確認済み。#1(HF 役)は `esp_hf_client_volume_update` を一度も呼んでおらず、AG である SRL3 の SCO 出力レベルが未制御。
+**ユーザー決定 = 対策 A**: #1 から SRL3 へ HFP スピーカー音量 `AT+VGS=15`(最大)を送信する。**スコープ外**: 対策 B(DSP ゲイン)、hf_unit(#2)の変更、マイク音量(AT+VGM)。
+
+### 16.2 現行ソフト解析結果
+- `main/bt_hf_client.c` は `esp_hf_client_volume_update` を呼ばない。`bt_hf_cb`(BTC 文脈)の `ESP_HF_CLIENT_VOLUME_CONTROL_EVT` は専用 case 無しで `default:` の `"HF event %d (log only)"` に落ち、音量値・種別が読めない(コメント上は「ログのみ、応答不要」)。
+- `handle_conn_state(SLC_CONNECTED)` は `s_slc=true`、peer 保存、scan mode、LED、reconnect タイマ停止のみ。`connect_audio` は意図的に呼ばない(SRL3 が自ら SCO を開く。AT+BCC は拒否され AT timeout になる)。
+- `handle_audio_state(CONNECTED / CONNECTED_MSBC)` は `s_sco=true`、`audio_i2s_set_input_rate` → `audio_i2s_reset` → `set_sco_active(true)` → `bt_data_path_on_audio_connected` → LED の順。いずれも BtAppT(`hf_work_handler`)上で実行される。
+- API 仕様(`esp_hf_client_api.h`): `esp_err_t esp_hf_client_volume_update(esp_hf_volume_control_target_t type, int volume)`。type は `ESP_HF_VOLUME_CONTROL_TARGET_SPK` / `_MIC`、volume は **0〜15**。**前提条件: SLC 確立済み**。戻り値は `ESP_OK`(下位層へ送出)、`ESP_ERR_INVALID_STATE`(Bluedroid 未有効)、`ESP_FAIL`(その他)。実装(`esp_hf_client_api.c`)は `btc_transfer_context` で BTC へ投げるだけで、**ESP_OK は「キュー投入成功」であり AG が受理した保証ではない**(SLC 未確立時の拒否は BTC 側でサイレントに起こり得る)。範囲外値のチェックは API 側に無い → 呼び出し側で保証する。
+- `ESP_HF_CLIENT_VOLUME_CONTROL_EVT`: `param->volume_control.type`(`esp_hf_volume_control_target_t`)/ `.volume`(0..15)。AG の `+VGS` / `+VGM` 通知で発生。
+- 規約: `esp_hf_client_*` は BtAppT(`bt_app_core` ワークキュー)からのみ呼ぶ(`bt_hf_client.c` 冒頭コメント / §13.7.4)。`bt_hf_cb` は BTC 文脈で軽処理のみ(ISS-013)。`bt_app_core.c` / `bt_data_path.c` は本 CR で変更不要(`bt_data_path` は SCO データ経路でボリュームとは無関係)。
+
+### 16.3 関連ファイル
+| ファイル | 変更 |
+|---|---|
+| `main/app_config.h` | `HF_SPK_VOLUME` 追加 |
+| `main/bt_hf_client.c` | `send_spk_volume()` 追加、SLC_CONNECTED / SCO CONNECTED から呼出し、`VOLUME_CONTROL_EVT` ログ case 追加 |
+| `main/bt_app_core.c`, `bt_data_path.c`, `hf_unit/*` | 変更なし |
+
+### 16.4 現行処理フロー
+SRL3 接続 → `CONNECTION_STATE_EVT(SLC_CONNECTED)`(BTC)→ `hf_post` → BtAppT `handle_conn_state`(状態更新のみ)→ …SRL3 が通話開始時に SCO を開く → `AUDIO_STATE_EVT` → BtAppT `handle_audio_state`(I2S 起動)。音量制御は一切無し。AG(SRL3)は自身の既定 SCO ゲインで送出。
+
+### 16.5 変更方針
+BtAppT 上の 2 箇所(SLC 確立直後 / SCO 確立直後)から共通関数 `send_spk_volume()` で `AT+VGS=HF_SPK_VOLUME` を送る。値はコンパイル時定数(`-1` で無効化)。AG 通知はログのみ(応答しない)。
+
+### 16.6 詳細設計
+**送信タイミング = 両方(SLC 直後 + SCO 確立時)**。理由:
+- SLC 直後: HFP は SLC 確立後に HF から VGS を送るのが一般的で、AG が接続単位で保持する場合はこれで足りる。API の前提(SLC 確立)も満たす。
+- SCO 確立時: AG によっては SCO(通話)開始で内部ボリュームを既定値へ戻す/通話ごとに再初期化するため、SLC 時の 1 回だと効かない可能性がある(SRL3 の挙動は未確認 = 実機要確認)。SCO 確立直後に再送するコストは AT 1 行のみ。
+- 3 回目以降の周期再送は**しない**(AG が頻繁に書き換えるなら `+VGS` 通知が増え、ログで検知できる。対策は実機結果を見て別 CR)。
+- SCO の CVSD↔mSBC 再ネゴで `AUDIO_STATE CONNECTED` が複数回来る場合も都度送られるが、軽量なので許容。
+
+**SLC 未確立時の扱い**: 呼出し元が SLC_CONNECTED ハンドラと SCO CONNECTED(SLC 確立が前提)なので通常発生しない。ただし SCO CONNECTED 側は `s_slc` が真のときのみ送る(防御。SLC 切断直後のレース回避)。失敗(`ESP_OK` 以外)は `ESP_LOGW` で記録し、**リトライ・状態保持はしない**(次の SCO 確立で再送される)。音声経路・SCO・LED の処理は送信結果に依存させない。
+
+**AG からの +VGS/+VGM 通知**: `bt_hf_cb` に専用 case を追加しログ化(`AG volume: SPK = n`)。BTC 文脈なので ESP_LOGI のみ、`hf_post` 不要、**VGS を送り返さない**(AG との往復ループ防止)。SRL3 が VGS を無視/書換えしているかを実機ログで判別する唯一の手段。
+
+**BOSS 試作パッチとの差分(独立判断)**: 構造(関数 1 つ・2 箇所呼出し・VOLUME_CONTROL ログ)は採用。変更点: (1) SCO 側に `s_slc` ガード追加、(2) 失敗時を `LOGW`、成功時 `LOGI`(`esp_err_to_name` 併記)、(3) `HF_SPK_VOLUME` に範囲コンパイルチェック(`#if > 15` で `#error`)、(4) 無効時(-1)も関数は残し本体を `#if` で空にして呼出し側を `#if` だらけにしない(`(void)when` で未使用警告回避)、(5) `when` 引数でログに送信契機を出す。
+
+### 16.7 データ構造変更
+なし(`hf_work_t`・`s_slc`/`s_sco` 不変。新規 static 変数なし)。
+
+### 16.8 インターフェース変更
+公開 API 変更なし。`app_config.h` に `HF_SPK_VOLUME`(整数、0..15 または -1)追加。AG 役(`BT_ROLE_AG`)ビルドでは `bt_hf_client.c` がビルド対象外のため影響なし(要ビルド確認)。
+
+### 16.9 影響範囲
+#1 HF 役のみ。#2(hf_unit)、I2S、DSP、LED、再接続、ボンディング、SCO 開始手順(AT+BCC を送らない)は不変。SRL3 が受理すると SCO 受信 PCM の振幅が増える → #1 の `audio_dsp`(HPF/ゲート/リミット類)・I2S 出力・#2・PC 録音が全体に大きくなる。
+
+### 16.10 リスク・注意事項
+| ID | リスク | 対応 |
+|---|---|---|
+| R-1 | SRL3 が VGS を無視する(メッシュ音声レベルは固定) | 効果なし。ログ `AG volume`/AT 応答で判別 → 対策 B(別 CR)。副作用なし |
+| R-2 | SRL3 が SCO 開始/再接続で音量をリセット | SCO 時再送で緩和。毎回リセットされ再送が遅れる場合は冒頭が小さい可能性 |
+| R-3 | 最大音量でクリップ/歪み(SRL3 側出力や #1 の DSP リミット) | 実機で RMS ログ(`RMS_LOG`)とクリップ有無を確認、必要なら 12〜14 に下げる(定数のみ) |
+| R-4 | SLC 直後の AT 送信が SLC 初期化(CIND/CHLD 等)と衝突し AT timeout を誘発 | Bluedroid は HF 側 AT をキュー/直列化するが、SRL3 で SLC 切断が増えるなら SLC 側送信を外し SCO 時のみにする(定数分岐で切替可能にしておく) |
+| R-5 | `ESP_OK` は AG 受理を意味しない | ログ文言を "queued" とし誤解を避ける |
+| R-6 | BtAppT 外から呼ぶとスタック規約違反 | 呼出しは `handle_*`(BtAppT)内のみ。`bt_hf_cb` から呼ばない |
+
+### 16.11 CODER への実装指示
+**変更対象**: `main/app_config.h`、`main/bt_hf_client.c` のみ。他ファイル(特に `hf_unit/`、`bt_app_core.c`、`bt_data_path.c`、`audio_*`)は変更禁止。
+
+**(1) `main/app_config.h`**(`/* ---- Audio DSP ...*/` ブロックの後、`/* ---- LEDs` の前あたり)
+```c
+/* CR-014: HFP speaker volume (AT+VGS, 0..15) sent to the AG (SRL3) after SLC and
+ * SCO setup. The AG scales its SCO output by it; 15 = loudest. -1 = do not send. */
+#define HF_SPK_VOLUME            15
+#if HF_SPK_VOLUME > 15 || HF_SPK_VOLUME < -1
+#error "HF_SPK_VOLUME must be -1 (disabled) or 0..15"
+#endif
+```
+
+**(2) `main/bt_hf_client.c`**
+a. `handle_stack_up` の後・`handle_conn_state` の前に追加(BtAppT 専用の旨をコメント):
+```c
+/* CR-014: AT+VGS to the AG. Call from BtAppT only (handle_*), after SLC. ESP_OK
+ * only means "queued to BTC", not "accepted by the AG". Failure is non-fatal. */
+static void send_spk_volume(const char *when)
+{
+#if HF_SPK_VOLUME >= 0
+    esp_err_t e = esp_hf_client_volume_update(ESP_HF_VOLUME_CONTROL_TARGET_SPK, HF_SPK_VOLUME);
+    if (e == ESP_OK) {
+        ESP_LOGI(TAG, "AT+VGS=%d queued (%s)", HF_SPK_VOLUME, when);
+    } else {
+        ESP_LOGW(TAG, "AT+VGS=%d failed (%s): %s", HF_SPK_VOLUME, when, esp_err_to_name(e));
+    }
+#else
+    (void)when;
+#endif
+}
+```
+b. `handle_conn_state` の SLC_CONNECTED: 既存の `ESP_LOGI(TAG, "SLC connected");` の**直後**、`connect_audio` に関するコメントの前に `send_spk_volume("SLC");`。
+c. `handle_audio_state` の CONNECTED/CONNECTED_MSBC: 既存の `ESP_LOGI(... "SCO connected")` の**直後**に
+```c
+        if (s_slc) {
+            send_spk_volume("SCO");
+        }
+```
+d. `bt_hf_cb` の `ESP_HF_CLIENT_PROF_STATE_EVT` case の後に追加(`hf_post` しない・API 呼出し禁止):
+```c
+    case ESP_HF_CLIENT_VOLUME_CONTROL_EVT:   /* AG +VGS/+VGM: log only, never echo back */
+        ESP_LOGI(TAG, "AG volume: %s = %d",
+                 param->volume_control.type == ESP_HF_VOLUME_CONTROL_TARGET_SPK ? "SPK" : "MIC",
+                 param->volume_control.volume);
+        break;
+```
+e. `bt_hf_cb` 末尾コメントの列挙から `VOLUME_CONTROL` を削除(ログ専用 case 化したため)。
+
+**現行動作 → 変更後**: 音量未送信 → SLC 確立直後と SCO 確立直後に `AT+VGS=15` を各 1 回送信、AG 通知をログ化。
+**エラー処理**: 失敗は WARN のみ、リトライ・状態変更・return 伝播なし。`HF_SPK_VOLUME=-1` では送信せず警告も出さない。
+**境界条件**: 値 0..15 以外は `#error`。SLC 未確立で SCO 側から呼ばない(`s_slc` ガード)。SCO 複数回 CONNECTED でも各回送ってよい。
+**守るべき既存機能**: SCO 開始手順(AT+BCC/`connect_audio` を呼ばない)、I2S/データ経路の呼出し順(`set_input_rate`→`reset`→`set_sco_active`→`on_audio_connected`)、再接続タイマ、LED、ボンディング、factory reset、AG 役ビルド。
+**実装制約**: `esp_hf_client_volume_update` を呼ぶのは `send_spk_volume()` のみ、それを呼ぶのは BtAppT 上の `handle_*` のみ。`bt_hf_cb` では呼ばない。重い処理・ブロッキング待ちを入れない。新規 static 状態なし。コードコメントは英語(既存流儀)。
+
+**テスト観点**
+- 静的(CODER/DEBUGGER 本環境で確認可): (a) `idf.py build` 警告・エラー 0(`HF_SPK_VOLUME=15` / `-1` / `0` の 3 通り。`-1` で unused 警告が出ないこと)、(b) `HF_SPK_VOLUME=16` で `#error`、(c) `grep -n esp_hf_client_volume_update main/` が `send_spk_volume` 内の 1 件のみ、`send_spk_volume` 呼出しが `handle_conn_state`/`handle_audio_state` 内のみ、(d) `bt_hf_cb` 内に `hf_post`/`esp_hf_client_*` の追加が無い、(e) git diff が `app_config.h`/`bt_hf_client.c` のみ、(f) ログ文言 `AT+VGS=15 queued (SLC)` / `(SCO)` / `AG volume: SPK = n` が実装と一致、(g) `BT_ROLE_AG` でもビルドが通る。
+- 実機のみ: (T-1) SRL3 接続でログに `AT+VGS=15 queued (SLC)` が出て切断/AT timeout が増えない、(T-2) SCO 確立で `(SCO)` 再送、(T-3) AG が `+VGS` を返す/リセットするか(`AG volume:` ログ)、(T-4) PC 録音レベルが前後で増加(同条件の会話で RMS 比較、`RMS_LOG` 併用)、(T-5) 最大音量で歪み/クリップが無いか、(T-6) SRL3 が VGS を無視する場合の判定(効果なし → 対策 B)、(T-7) 再接続・SCO 再ネゴ(CVSD↔mSBC)後も有効、(T-8) 通話開始冒頭の音量が一定か(R-2)。
+
+### 16.12 実装後レビュー結果(DESIGNER / 2026-10-01、`git diff main/` 対象・静的のみ)
+対象: `main/app_config.h`、`main/bt_hf_client.c`(他に差分なし = hf_unit / bt_app_core / bt_data_path / audio_* 無変更)。DEBUGGER の `test_report.md §13` は**計画のみで B/S/R の結果は未記入**(本レビュー時点)。
+
+**判定: 合格(Critical 0 / High 0 / Medium 0 / Low 2)。** §16.11 の指示と一致。
+確認済み:
+- `esp_hf_client_volume_update` の呼出しは `send_spk_volume()` 内の 1 件のみ(grep 確認)。呼出し元は `handle_conn_state`(SLC)と `handle_audio_state`(SCO、`if (s_slc)` ガード付)で、どちらも BtAppT 上。`bt_hf_cb`(BTC)には API 呼出し・`hf_post` の追加なし、VGS 返送なし。
+- `#error` 範囲チェック(`>15 || <-1`)、`-1` 時は本体が空で `(void)when` により未使用警告なし(コード上)。引数 `when` は `-1` 以外でも使用される。
+- ログ文言 `AT+VGS=%d queued (SLC|SCO)` / LOGW / `AG volume: SPK|MIC = n` は設計どおり。`VOLUME_CONTROL_EVT` の `param->volume_control.type/.volume` は API ヘッダ定義と一致。`bt_hf_cb` 末尾コメントから VOLUME_CONTROL を削除済み。
+- 既存手順(`connect_audio` 非呼出し、SCO 時の I2S 呼出し順 `set_input_rate`→`reset`→`set_sco_active`→`on_audio_connected`)不変。送信は I2S 設定の後に置かれ、送信結果は音声経路に影響しない。新規 static 状態なし。
+
+| 重大度 | ID | 内容 / 推奨 |
+|---|---|---|
+| Low | L-1 | `HF_SPK_VOLUME=-1` 時もログが一切出ないため「無効ビルド」であることがログから分からない。必要なら `-1` 側に `ESP_LOGI("AT+VGS disabled")` を 1 度出す(任意、現状のままで可) |
+| Low | L-2 | `#error` は `app_config.h` が include される全 TU で評価される(設計意図どおりで問題なし)。AG 役ビルド(B-6)・`-1`/`0`/`16`/`-2`(B-2〜B-5)は未ビルド確認のため DEBUGGER の結果記入後に突合すること |
+
+実機専用(T-1〜T-8)は §16.11 のとおり未確認。U-10〜U-12 は実機結果待ち。
+
+### 16.13 未解決事項
+- **U-10**: SRL3 が AT+VGS を受理し音量に反映するか(実機のみ)。無視なら対策 B(DSP ゲイン)を別 CR で。
+- **U-11**: 最大値 15 で歪む場合の既定値(12〜14)。実機評価後に決定。
+- **U-12**: SLC 直後送信が SRL3 の SLC 確立を不安定にする場合、SLC 側を外す(R-4)。実機結果次第。

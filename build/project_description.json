@@ -1,7 +1,7 @@
 {
     "version":            "1.1",
     "project_name":       "dummy_intercom",
-    "project_version":    "b6d211d-dirty",
+    "project_version":    "c116808-dirty",
     "project_path":       "/home/subcon/SOURCE_CODE/dummycom2",
     "idf_path":           "/home/subcon/esp/esp-idf",
     "build_dir":          "/home/subcon/SOURCE_CODE/dummycom2/build",

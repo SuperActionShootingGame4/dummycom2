@@ -85,6 +85,10 @@
  * for a transparent rumble/DC cut; use a biquad if you need a real 100+ Hz HPF.
  * 0 disables entirely. */
 #define AUDIO_HPF_CUTOFF_HZ      30.0f
+/* Linear make-up gain applied after the HPF (before the gate). The SRL3 mic path is
+ * very quiet (speech rms ~10, hand-tap ~250 of 32767), so 25 = +28 dB. 1.0 = off.
+ * Output is clipped to int16, so lower it if loud peaks distort. */
+#define AUDIO_MAKEUP_GAIN        25.0f
 #define AUDIO_GATE_ENABLE        0      /* 1 = downward expander on idle hiss; 0 = passthrough (default:
                                         * validate the resampler/codec first, then enable if hiss bothers) */
 #define AUDIO_GATE_OPEN_LEVEL    600.0f /* post-HPF |sample| envelope that opens the gate (~ -35 dBFS) */
@@ -93,6 +97,20 @@
 #define AUDIO_GATE_ENV_REL_MS    15.0f  /* envelope release time constant (attack is instant) */
 #define AUDIO_GATE_ATTACK_MS     0.8f   /* gain slew when opening (fast: do not clip speech onsets) */
 #define AUDIO_GATE_RELEASE_MS    80.0f  /* gain slew when closing (gentle: no pumping) */
+
+/* CR-014: HFP speaker volume (AT+VGS, 0..15) sent to the AG (SRL3) after SLC and
+ * SCO setup. The AG scales its SCO output by it; 15 = loudest. -1 = do not send. */
+#define HF_SPK_VOLUME            15
+#if HF_SPK_VOLUME > 15 || HF_SPK_VOLUME < -1
+#error "HF_SPK_VOLUME must be -1 (disabled) or 0..15"
+#endif
+
+/* AT+VGM (0..15) sent alongside AT+VGS. -1 = do not send. Whether the SRL3 honours
+ * it for its own mic path: tested on hardware, SRL3 ignores it (no rms change). */
+#define HF_MIC_VOLUME            -1
+#if HF_MIC_VOLUME > 15 || HF_MIC_VOLUME < -1
+#error "HF_MIC_VOLUME must be -1 (disabled) or 0..15"
+#endif
 
 /* ---- LEDs ----------------------------------------------------------- */
 #define LED_TASK_PERIOD_MS       50

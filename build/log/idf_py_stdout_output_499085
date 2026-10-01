@@ -1,0 +1,207 @@
+=0001ch (    28) load
+[0;32mI (133) e=0001ch (    28) load[0m
+[0;32mI (133) e=0001ch (    28) load[0m
+[0;32mI (133) e=0001ch (    28) load[0m
+[0;32mI (133) e=0001ch (    28) load[0m
+[0;32mI (133) e=0001ch (    28) load[0m
+[0;32mI (133) e=0001ch (    28) load[0m
+[0;32mI (133) e=0001ch (    28) load[0m
+[0;32mI (133) e=0001ch (    28) load[0m
+[0;32mI (133) e=0001ch (    28) load[0m
+[0;32mI (133) e=0001ch (    28) load[0m
+[0;32mI (133) e=0001ch (    28) load[0m
+[0;32mI (133) e=0001ch (    28) load[0m
+[0;32mI (133) e=0001ch (    28) load[0m
+[0;32mI (133) e=0001ch (    28) load[0m
+[0;32mI (133) e=0001ch (    28) load[0m
+[0;32mI (133) e=0001ch (    28) load[0m
+[0;32mI (133) e=0001ch (    28) load[0m
+[0;32mI (133) e=0001ch (    28) load[0m
+[0;32mI (133) e=0001ch (    28) load[0m
+[0;32mI (133) e=0001ch (    28) load[0m
+[0;32mI (133) e=0001ch (    28) load[0m
+[0;32mI (133) e=0001ch (    28) load[0m
+[0;32mI (133) e=0001ch (    28) load[0m
+[0;32mI (133) e=0001ch (    28) load[0m
+[0;32mI (133) e=0001ch (    28) load[0m
+[0;32mI (133) e=0001ch (    28) load[0m
+[0;32mI (133) e=0001ch (    28) load[0m
+[0;32mI (133) e=0001ch (    28) load[0m
+[0;32mI (133) e=0001ch (    28) load[0m
+[0;32mI (133) e=0001ch (    28) load[0m
+[0;32mI (133) e=0001ch (    28) load[0m
+[0;32mI (133) e=0001ch (    28) load[0m
+[0;32mI (133) e=0001ch (    28) load[0m
+[0;32mI (133) e=0001ch (    28) load[0m
+[0;32mI (133) e=0001ch (    28) load[0m
+[0;32mI (133) e=0001ch (    28) load[0m
+I (=0002e�ets Jul 29 2019 12:21:46
+
+rst:0x1 (POWERON_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+configsip: 0, SPIWP:0xee
+clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+mode:DIO, clock div:2
+load:0x3fff0030,len:6276
+load:0x40078000,len:15716
+load:0x40080400,len:4
+ho 8 tail 4 room 4
+load:0x40080404,len:3860
+entry 0x4008063c
+[0;32mI (31) boot: ESP-IDF v5.4-dirty 2nd stage bootloader[0m
+[0;32mI (31) boot: compile time Oct  1 2026 17:53:21[0m
+[0;32mI (31) boot: Multicore bootloader[0m
+[0;32mI (33) boot: chip revision: v3.1[0m
+[0;32mI (36) boot.esp32: SPI Speed      : 40MHz[0m
+[0;32mI (39) boot.esp32: SPI Mode       : DIO[0m
+[0;32mI (43) boot.esp32: SPI Flash Size : 4MB[0m
+[0;32mI (47) boot: Enabling RNG early entropy source...[0m
+[0;32mI (51) boot: Partition Table:[0m
+[0;32mI (54) boot: ## Label            Usage          Type ST Offset   Length[0m
+[0;32mI (60) boot:  0 nvs              WiFi data        01 02 00009000 00006000[0m
+[0;32mI (66) boot:  1 phy_init         RF data          01 01 0000f000 00001000[0m
+[0;32mI (73) boot:  2 factory          factory app      00 00 00010000 001e0000[0m
+[0;32mI (80) boot: End of partition table[0m
+[0;32mI (83) esp_image: segment 0: paddr=00010020 vaddr=3f400020 size=1e1d0h (123344) map[0m
+[0;32mI (132) esp_image: segment 1: paddr=0002e1f8 vaddr=3ff80000 size=0001ch (    28) load[0m
+[0;32mI (133) esp_image: segment 2: paddr=0002e21c vaddr=3ffbdb60 size=01dfch (  7676) load[0m
+[0;32mI (139) esp_image: segment 3: paddr=00030020 vaddr=400d0020 size=7baf4h (506612) map[0m
+[0;32mI (317) esp_image: segment 4: paddr=000abb1c vaddr=3ffbf95c size=02e20h ( 11808) load[0m
+[0;32mI (321) esp_image: segment 5: paddr=000ae944 vaddr=40080000 size=17b80h ( 97152) load[0m
+[0;32mI (371) boot: Loaded app from partition at offset 0x10000[0m
+[0;32mI (371) boot: Disabling RNG early entropy source...[0m
+[0;32mI (382) cpu_start: Multicore app[0m
+[0;32mI (390) cpu_start: Pro cpu start user code[0m
+[0;32mI (390) cpu_start: cpu freq: 160000000 Hz[0m
+[0;32mI (390) app_init: Application information:[0m
+[0;32mI (390) app_init: Project name:     dummy_intercom[0m
+[0;32mI (395) app_init: App version:      c116808-dirty[0m
+[0;32mI (399) app_init: Compile time:     Oct  1 2026 17:53:13[0m
+[0;32mI (404) app_init: ELF file SHA256:  70e433f93...[0m
+[0;32mI (408) app_init: ESP-IDF:          v5.4-dirty[0m
+[0;32mI (413) efuse_init: Min chip rev:     v0.0[0m
+[0;32mI (416) efuse_init: Max chip rev:     v3.99 [0m
+[0;32mI (420) efuse_init: Chip rev:         v3.1[0m
+[0;32mI (424) heap_init: Initializing. RAM available for dynamic allocation:[0m
+[0;32mI (431) heap_init: At 3FFAFF10 len 000000F0 (0 KiB): DRAM[0m
+[0;32mI (436) heap_init: At 3FFB6BF8 len 00001408 (5 KiB): DRAM[0m
+[0;32mI (441) heap_init: At 3FFB9A20 len 00004108 (16 KiB): DRAM[0m
+[0;32mI (446) heap_init: At 3FFCACA8 len 00015358 (84 KiB): DRAM[0m
+[0;32mI (451) heap_init: At 3FFE0440 len 00003AE0 (14 KiB): D/IRAM[0m
+[0;32mI (456) heap_init: At 3FFE4350 len 0001BCB0 (111 KiB): D/IRAM[0m
+[0;32mI (462) heap_init: At 40097B80 len 00008480 (33 KiB): IRAM[0m
+[0;32mI (469) spi_flash: detected chip: generic[0m
+[0;32mI (471) spi_flash: flash io: dio[0m
+[0;32mI (475) coexist: coex firmware version: 49a8cdc[0m
+[0;32mI (479) main_task: Started on CPU0[0m
+[0;32mI (482) main_task: Calling app_main()[0m
+[0;32mI (496) gpio: GPIO[13]| InputEn: 0| OutputEn: 1| OpenDrain: 0| Pullup: 0| Pulldown: 0| Intr:0 [0m
+[0;32mI (497) gpio: GPIO[32]| InputEn: 0| OutputEn: 1| OpenDrain: 0| Pullup: 0| Pulldown: 0| Intr:0 [0m
+[0;32mI (503) gpio: GPIO[33]| InputEn: 0| OutputEn: 1| OpenDrain: 0| Pullup: 0| Pulldown: 0| Intr:0 [0m
+[0;32mI (512) gpio: GPIO[14]| InputEn: 1| OutputEn: 0| OpenDrain: 0| Pullup: 1| Pulldown: 0| Intr:0 [0m
+[0;32mI (521) storage: peer BDA loaded: 00:01:95:df:30:aa[0m
+[0;32mI (528) audio_i2s: I2S0 TX up: 16000 Hz/16-bit mono, BCLK=26 WS=25 DOUT=27[0m
+[0;32mI (532) BTDM_INIT: BT controller compile version [20b459d][0m
+[0;32mI (538) BTDM_INIT: Bluetooth MAC: 70:4b:ca:82:38:4e[0m
+[0;32mI (544) phy_init: phy_version 4840,02e0d70,Sep  2 2024,19:39:07[0m
+[0;32mI (1207) app_main: own address: 70:4b:ca:82:38:4e[0m
+[0;32mI (1227) bt_hf_client: HFP-HF profile state: 0[0m
+[0;32mI (1228) bt_hf_client: HFP-HF ready, name="DummyIntercom" (waiting for stored peer, discoverable)[0m
+[0;32mI (1242) main_task: Returned from app_main()[0m
+[0;33mW (5879) BT_HCI: hcif conn complete: hdl 0x80, st 0x0[0m
+[0;33mW (6090) BT_APPL: new conn_srvc id:27, app_id:1[0m
+[0;32mI (6107) bt_hf_client: connection state: CONNECTED[0m
+[0;32mI (6194) bt_hf_client: HF event 6 (log only)[0m
+[0;32mI (6195) bt_hf_client: HF event 3 (log only)[0m
+[0;32mI (6195) bt_hf_client: HF event 4 (log only)[0m
+[0;32mI (6196) bt_hf_client: HF event 5 (log only)[0m
+[0;32mI (6200) bt_hf_client: HF event 7 (log only)[0m
+[0;32mI (6206) bt_hf_client: HF event 8 (log only)[0m
+[0;32mI (6210) bt_hf_client: HF event 9 (log only)[0m
+[0;32mI (6212) bt_hf_client: connection state: SLC_CONNECTED[0m
+[0;32mI (6217) bt_hf_client: SLC connected[0m
+[0;32mI (6220) bt_hf_client: AT+VGS=15 queued (SLC)[0m
+[0;32mI (8217) bt_hf_client: HF event 4 (log only)[0m
+[0;32mI (8223) bt_hf_client: audio state: connected[0m
+[0;32mI (8224) audio_i2s: SCO PCM 8000 Hz -> upsample -> 16000 Hz I2S[0m
+[0;32mI (8225) bt_hf_client: CVSD/8kHz SCO connected[0m
+[0;32mI (8227) bt_hf_client: AT+VGS=15 queued (SCO)[0m
+[0;32mI (8239) bt_hf_client: HF event 3 (log only)[0m
+[0;32mI (9228) bt_data_path: rx PCM: 7950 samples, rms=0, underrun=0 overrun=0[0m
+[0;32mI (10228) bt_data_path: rx PCM: 8010 samples, rms=0, underrun=0 overrun=0[0m
+[0;32mI (11228) bt_data_path: rx PCM: 8010 samples, rms=0, underrun=0 overrun=0[0m
+[0;32mI (12228) bt_data_path: rx PCM: 7980 samples, rms=0, underrun=0 overrun=0[0m
+[0;32mI (13228) bt_data_path: rx PCM: 8010 samples, rms=0, underrun=0 overrun=0[0m
+[0;32mI (14228) bt_data_path: rx PCM: 8010 samples, rms=0, underrun=0 overrun=0[0m
+[0;32mI (15228) bt_data_path: rx PCM: 7980 samples, rms=2, underrun=0 overrun=0[0m
+[0;33mW (15474) BT_HCI: hci cmd send: sniff: hdl 0x80, intv(400 800)[0m
+[0;33mW (15475) BT_HCI: hcif mode change: hdl 0x80, mode 0, intv 0, status 0x20[0m
+[1;31mE (15476) BT_APPL: bta_dm_pm_btm_status hci_status=32[0m
+[0;32mI (15481) bt_hf_client: GAP mode change: 0[0m
+[0;32mI (16228) bt_data_path: rx PCM: 8010 samples, rms=0, underrun=0 overrun=0[0m
+[0;32mI (17228) bt_data_path: rx PCM: 8010 samples, rms=0, underrun=0 overrun=0[0m
+[0;32mI (18228) bt_data_path: rx PCM: 7980 samples, rms=0, underrun=0 overrun=0[0m
+[0;32mI (19228) bt_data_path: rx PCM: 8010 samples, rms=0, underrun=0 overrun=0[0m
+[0;32mI (20228) bt_data_path: rx PCM: 8010 samples, rms=0, underrun=0 overrun=0[0m
+[0;32mI (21228) bt_data_path: rx PCM: 7980 samples, rms=0, underrun=0 overrun=0[0m
+[0;32mI (22228) bt_data_path: rx PCM: 8010 samples, rms=16, underrun=0 overrun=0[0m
+[0;32mI (23228) bt_data_path: rx PCM: 8010 samples, rms=0, underrun=0 overrun=0[0m
+[0;32mI (24228) bt_data_path: rx PCM: 7980 samples, rms=0, underrun=0 overrun=0[0m
+[0;32mI (25228) bt_data_path: rx PCM: 8010 samples, rms=0, underrun=0 overrun=0[0m
+[0;32mI (26228) bt_data_path: rx PCM: 8010 samples, rms=0, underrun=0 overrun=0[0m
+[0;32mI (27228) bt_data_path: rx PCM: 7980 samples, rms=8, underrun=0 overrun=0[0m
+[0;32mI (28228) bt_data_path: rx PCM: 8010 samples, rms=0, underrun=0 overrun=0[0m
+[0;32mI (29228) bt_data_path: rx PCM: 8010 samples, rms=19, underrun=0 overrun=0[0m
+[0;32mI (30228) bt_data_path: rx PCM: 7980 samples, rms=1, underrun=0 overrun=0[0m
+[0;32mI (31228) bt_data_path: rx PCM: 8010 samples, rms=1, underrun=0 overrun=0[0m
+[0;32mI (32228) bt_data_path: rx PCM: 7980 samples, rms=0, underrun=0 overrun=0[0m
+[0;32mI (33228) bt_data_path: rx PCM: 8010 samples, rms=5, underrun=0 overrun=0[0m
+[0;32mI (34228) bt_data_path: rx PCM: 8010 samples, rms=6, underrun=0 overrun=0[0m
+[0;32mI (35228) bt_data_path: rx PCM: 7980 samples, rms=0, underrun=0 overrun=0[0m
+[0;32mI (36228) bt_data_path: rx PCM: 8010 samples, rms=0, underrun=0 overrun=0[0m
+[0;32mI (37228) bt_data_path: rx PCM: 8010 samples, rms=16, underrun=0 overrun=0[0m
+[0;32mI (38228) bt_data_path: rx PCM: 7980 samples, rms=8, underrun=0 overrun=0[0m
+#FEAT# ATTE2 status:0
+[0;33mW (38240) BT_HCI: hcif mode change: hdl 0x80, mode 2, intv 160, status 0x0[0m
+[0;32mI (38241) bt_hf_client: GAP mode change: 2[0m
+[0;32mI (39228) bt_data_path: rx PCM: 8010 samples, rms=0, underrun=0 overrun=0[0m
+[0;32mI (40228) bt_data_path: rx PCM: 8010 samples, rms=10, underrun=0 overrun=0[0m
+[0;32mI (41228) bt_data_path: rx PCM: 7980 samples, rms=73, underrun=0 overrun=0[0m
+[0;32mI (42228) bt_data_path: rx PCM: 8010 samples, rms=35, underrun=0 overrun=0[0m
+[0;32mI (43228) bt_data_path: rx PCM: 8010 samples, rms=12, underrun=0 overrun=0[0m
+[0;32mI (44228) bt_data_path: rx PCM: 7980 samples, rms=55, underrun=0 overrun=0[0m
+[0;32mI (45228) bt_data_path: rx PCM: 8010 samples, rms=15, underrun=0 overrun=0[0m
+[0;32mI (46228) bt_data_path: rx PCM: 8010 samples, rms=14, underrun=0 overrun=0[0m
+[0;32mI (47228) bt_data_path: rx PCM: 7980 samples, rms=7, underrun=0 overrun=0[0m
+[0;32mI (48228) bt_data_path: rx PCM: 8010 samples, rms=0, underrun=0 overrun=0[0m
+[0;32mI (49228) bt_data_path: rx PCM: 8010 samples, rms=0, underrun=0 overrun=0[0m
+[0;32mI (50228) bt_data_path: rx PCM: 7980 samples, rms=0, underrun=0 overrun=0[0m
+[0;32mI (51228) bt_data_path: rx PCM: 8010 samples, rms=18, underrun=0 overrun=0[0m
+[0;32mI (52228) bt_data_path: rx PCM: 8010 samples, rms=7, underrun=0 overrun=0[0m
+[0;32mI (53228) bt_data_path: rx PCM: 7980 samples, rms=9, underrun=0 overrun=0[0m
+[0;32mI (54228) bt_data_path: rx PCM: 8010 samples, rms=17, underrun=0 overrun=0[0m
+[0;32mI (55228) bt_data_path: rx PCM: 8010 samples, rms=0, underrun=0 overrun=0[0m
+[0;32mI (56228) bt_data_path: rx PCM: 7980 samples, rms=4, underrun=0 overrun=0[0m
+[0;32mI (57228) bt_data_path: rx PCM: 8010 samples, rms=0, underrun=0 overrun=0[0m
+[0;32mI (58228) bt_data_path: rx PCM: 8010 samples, rms=0, underrun=0 overrun=0[0m
+[0;32mI (59228) bt_data_path: rx PCM: 7980 samples, rms=0, underrun=0 overrun=0[0m
+[0;32mI (60228) bt_data_path: rx PCM: 8010 samples, rms=0, underrun=0 overrun=0[0m
+[0;32mI (61228) bt_data_path: rx PCM: 8010 samples, rms=5, underrun=0 overrun=0[0m
+[0;32mI (62228) bt_data_path: rx PCM: 7980 samples, rms=0, underrun=0 overrun=0[0m
+[0;32mI (63228) bt_data_path: rx PCM: 8010 samples, rms=0, underrun=0 overrun=0[0m
+[0;32mI (64228) bt_data_path: rx PCM: 8010 samples, rms=0, underrun=0 overrun=0[0m
+[0;32mI (65228) bt_data_path: rx PCM: 7980 samples, rms=0, underrun=0 overrun=0[0m
+[0;32mI (66228) bt_data_path: rx PCM: 8010 samples, rms=0, underrun=0 overrun=0[0m
+[0;32mI (67228) bt_data_path: rx PCM: 8010 samples, rms=0, underrun=0 overrun=0[0m
+[0;32mI (68228) bt_data_path: rx PCM: 7980 samples, rms=0, underrun=0 overrun=0[0m
+[0;32mI (69228) bt_data_path: rx PCM: 8010 samples, rms=6, underrun=0 overrun=0[0m
+[0;32mI (70228) bt_data_path: rx PCM: 8010 samples, rms=0, underrun=0 overrun=0[0m
+[0;32mI (71228) bt_data_path: rx PCM: 7980 samples, rms=0, underrun=0 overrun=0[0m
+[0;32mI (72228) bt_data_path: rx PCM: 8010 samples, rms=0, underrun=0 overrun=0[0m
+[0;32mI (73228) bt_data_path: rx PCM: 8010 samples, rms=0, underrun=0 overrun=0[0m
+[0;32mI (74228) bt_data_path: rx PCM: 7980 samples, rms=0, underrun=0 overrun=0[0m
+[0;32mI (75228) bt_data_path: rx PCM: 8010 samples, rms=3, underrun=0 overrun=0[0m
+[0;32mI (76228) bt_data_path: rx PCM: 8010 samples, rms=0, underrun=0 overrun=0[0m
+[0;32mI (77228) bt_data_path: rx PCM: 7980 samples, rms=0, underrun=0 overrun=0[0m
+[0;32mI (78228) bt_data_path: rx PCM: 8010 samples, rms=0, underrun=0 overrun=0[0m
+[0;32mI (79228) bt_data_path: rx PCM: 7980 samples, rms=0, underrun=0 overrun=0[0m
+[0;32mI (80228) bt_data_path: rx PCM: 8010 samples, rms=0, underrun=0 overrun=0[0m
